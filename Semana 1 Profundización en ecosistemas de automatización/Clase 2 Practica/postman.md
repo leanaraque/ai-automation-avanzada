@@ -6,21 +6,25 @@ Este documento contiene los datos de prueba para enviar a nuestro flujo de n8n m
 
 Este paciente cumple con las condiciones del protocolo de riesgo (mayor de 60 años con dificultad respiratoria). Al enviar este caso, el sistema debería forzar al LLM a clasificar la urgencia y asignar un nivel de triage **Alto**.
 
+```json
 {
   "paciente_id": "P-102",
   "sintomas": "Fiebre alta, tos seca y dificultad respiratoria constante",
   "edad": 65
 }
+```
 
 ## Opción 2: Caso de Rutina (Nivel Bajo/Medio)
 
 Este paciente es joven y presenta síntomas leves que no activan el protocolo de emergencia. Al enviar este caso, el LLM demostrará su capacidad de análisis contextual y debería asignar un nivel de triage **Bajo** o **Medio**.
 
+```json
 {
   "paciente_id": "P-405",
   "sintomas": "Dolor de cabeza leve, algo de cansancio y mucosidad desde ayer",
   "edad": 32
 }
+```
 
 ### Instrucciones para probar en Postman:
 1. Abre una nueva pestaña de petición en Postman.
