@@ -10,7 +10,8 @@ Este paciente cumple con las condiciones del protocolo de riesgo (mayor de 60 a√
 {
   "paciente_id": "P-102",
   "sintomas": "Fiebre alta, tos seca y dificultad respiratoria constante",
-  "edad": 65
+  "edad": 65,
+  "Mail": "mail@gmail.com"
 }
 ```
 
@@ -22,7 +23,9 @@ Este paciente es joven y presenta s√≠ntomas leves que no activan el protocolo de
 {
   "paciente_id": "P-405",
   "sintomas": "Dolor de cabeza leve, algo de cansancio y mucosidad desde ayer",
-  "edad": 32
+  "edad": 32,
+  "Mail": "mail@gmail.com"
+  
 }
 ```
 
