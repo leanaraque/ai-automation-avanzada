@@ -1,0 +1,295 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "recepcion-pacientes",
+        "options": {}
+      },
+      "name": "Webhook (Ingesta)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -2176,
+        400
+      ],
+      "id": "fa4ca903-1726-449b-9fcf-72761d12a776",
+      "webhookId": "6bcba7c5-6be5-49e2-8bab-170edca6a231"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "protocolo_recuperado",
+              "value": "Pacientes mayores de 60 con dificultad respiratoria requieren evaluación médica presencial en menos de 2 horas."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Simulador RAG",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1936,
+        400
+      ],
+      "id": "f447404a-f6d7-4d83-8b08-fba7b0d21996"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.text }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF (Verificar Error)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        400
+      ],
+      "id": "0c9283e4-30bc-48d5-8e81-665e03e387d3"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "patient_id",
+              "value": "={{ $node[\"Webhook (Ingesta)\"].json[\"body\"][\"paciente_id\"] }}"
+            },
+            {
+              "name": "diagnosis",
+              "value": "ERROR DE SISTEMA - REQUIERE EVALUACIÓN MANUAL"
+            },
+            {
+              "name": "triage_level",
+              "value": "Alto"
+            },
+            {
+              "name": "error",
+              "value": "={{ $('Basic LLM Chain').item.json.error }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Fallback Emergencia",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        288
+      ],
+      "id": "7419b5c9-d622-4a62-84f2-a760b3e1c2b5"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "patient_id",
+              "value": "={{ JSON.parse($json.text).patient_id }}"
+            },
+            {
+              "name": "diagnosis",
+              "value": "={{ JSON.parse($json.text).diagnosis }}"
+            },
+            {
+              "name": "triage_level",
+              "value": "={{ JSON.parse($json.text).triage_level }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Parsear Groq JSON",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        496
+      ],
+      "id": "c978abf3-90d8-4522-a2c5-1f761a7c8f1b"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Datos del paciente:\n- ID: {{$node[\"Webhook (Ingesta)\"].json[\"body\"][\"paciente_id\"]}}\n- Síntomas: {{$node[\"Webhook (Ingesta)\"].json[\"body\"][\"sintomas\"]}}\n- Edad: {{$node[\"Webhook (Ingesta)\"].json[\"body\"][\"edad\"]}}\n\nProtocolo clínico a seguir:\n{{$node[\"Simulador RAG\"].json[\"protocolo_recuperado\"]}}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Eres un asistente de triage médico. Tu tarea es analizar los síntomas del paciente basándote estrictamente en el protocolo clínico proporcionado.  Responde ÚNICAMENTE en formato JSON válido utilizando exactamente este esquema: {   \"patient_id\": \"string\",   \"diagnosis\": \"string\",   \"recommendations\": [\"string\"],   \"triage_level\": \"Alto\nMedio\nBajo\" }  No incluyas saludos, introducciones, ni texto adicional fuera de la estructura JSON."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -1728,
+        400
+      ],
+      "id": "eee71e03-e6f3-4d97-b790-baeb92766462",
+      "name": "Basic LLM Chain",
+      "retryOnFail": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {
+          "maxTokensToSample": 500,
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1808,
+        608
+      ],
+      "id": "0892853b-e7ce-467e-916c-a5c2bfdeb03f",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "YcFkEuvX7MRmBOeV",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook (Ingesta)').item.json.body.Mail }}",
+        "subject": "Test_Class",
+        "message": "=🚨 Alerta de Triage: Paciente: {{$json[\"patient_id\"]}} \nNivel: {{$json[\"triage_level\"]}} \nDiagnóstico: {{$json[\"diagnosis\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -800,
+        416
+      ],
+      "id": "24daa97b-b11c-459a-a2b4-ccb1dfb14874",
+      "name": "Send a message",
+      "webhookId": "28d1075e-45a0-4c62-b2c6-03741d9bd0f6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TB6586hf2PfjMfHt",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook (Ingesta)": {
+      "main": [
+        [
+          {
+            "node": "Simulador RAG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulador RAG": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF (Verificar Error)": {
+      "main": [
+        [
+          {
+            "node": "Fallback Emergencia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parsear Groq JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback Emergencia": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Groq JSON": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "IF (Verificar Error)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "94561db8-d8cd-44cd-a5fa-2dd0d116d959",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2f7ae884c5600f3a688a6b01718042bd33a854bc64a392c40e155774ac8a72f7"
+  },
+  "id": "NIo5sFNYi3J9PQBW",
+  "tags": []
+}
