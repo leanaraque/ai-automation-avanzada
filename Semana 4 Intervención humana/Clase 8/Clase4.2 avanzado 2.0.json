@@ -1,0 +1,677 @@
+{
+  "name": "Clase4.1 Basic 2.0",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1216,
+        160
+      ],
+      "id": "51cccb7b-f43c-41a2-a9b6-925d05c674dc",
+      "name": "Telegram Trigger",
+      "webhookId": "e1ae3606-f1ab-497f-b9ed-44247dabf5d5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=5885895670",
+        "text": "=SOLICITUD DE DERIVACIÓN URGENTE\n\nID PACIENTE: {{ $('Telegram Trigger').item.json.message.chat.id }}\n\nSintoma Principal: {{ $json.triage.sintoma_principal }}\n\n",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Aprobar",
+                    "additionalFields": {
+                      "url": "={{ $resumeWebhookUrl }}&decision=approve"
+                    }
+                  },
+                  {
+                    "text": "❌ Rechazar",
+                    "additionalFields": {
+                      "url": "={{ $resumeWebhookUrl }}&decision=reject"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        -80
+      ],
+      "id": "d57a3e69-6c3f-4d1f-90c0-e04cecc96a7f",
+      "name": "Send a text message",
+      "webhookId": "cac82329-9b43-4ec6-b08a-3a7babaf10c6",
+      "credentials": {
+        "telegramApi": {
+          "id": "e4yASAEOdcwHnuIF",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "limitWaitTime": true,
+        "resumeAmount": 15,
+        "resumeUnit": "seconds",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        -80
+      ],
+      "id": "ec1d357f-5962-498d-973d-885b1fd3f860",
+      "name": "Wait",
+      "webhookId": "9d487ec7-7177-4082-b7ba-0c498d670323"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "32bdedf1-efcd-40e5-a476-fc5270c098d9"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f4d1901f-6346-4d41-a8bb-6d7c84e3ca84",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d7ecff5a-8701-4f43-b7e5-ce5a35697d0d",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        -32
+      ],
+      "id": "152ff901-3dc2-43d1-83b2-9675caea3024",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "✅ Derivación aprobada. Enviando ambulancia.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1088,
+        -400
+      ],
+      "id": "a270f652-b548-4a6c-9f0b-e3e0df3b91f6",
+      "name": "Send a text message1",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "❌ Derivación rechazada por el médico.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        -16
+      ],
+      "id": "1707e0de-197a-4516-b06f-84f9d9985cd1",
+      "name": "Send a text message2",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "⚠️ ALERTA: El médico de guardia no respondió en 1 minuto. Escalando caso al Director Médico.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        992,
+        352
+      ],
+      "id": "53f34e4c-7076-42b3-b87f-70786f1e4fe4",
+      "name": "Send a text message3",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Eres un sistema de triage médico. Analiza el siguiente mensaje del paciente: \"{{ $('Telegram Trigger').item.json.message.text }}\"  Tu única tarea es extraer la información y responder ESTRICTAMENTE en formato JSON, sin texto adicional, usando esta estructura: {   \"sintoma_principal\": \"descripción breve\",   \"nivel_gravedad\": \"ALTA\" o \"BAJA\",   \"requiere_medico\": true o false }"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -912,
+        160
+      ],
+      "id": "9cf45430-d280-41a5-9c97-c8b6111d9488",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        416
+      ],
+      "id": "afcf0cb3-c3c5-4af5-a282-c7bea2652486",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "CuE7PN4eQI2At1ee",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        288,
+        528
+      ],
+      "id": "94dc277c-349a-4a58-b128-5c7f3ad06264",
+      "name": "Send a text message4",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Redacta una respuesta más digerible y facil de entender para los paciente"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -80,
+        416
+      ],
+      "id": "27f4a860-ed7e-4184-9359-e5edbe85d7e3",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        624
+      ],
+      "id": "04c791fe-dffe-4643-bc6b-8285d7c06b6d",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "CuE7PN4eQI2At1ee",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1kCcf2eSaAGS2e8q3PgLi3kFoAmjCnxVwcWuHZPZjIAY",
+          "mode": "list",
+          "cachedResultName": "Registro de respuesta",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kCcf2eSaAGS2e8q3PgLi3kFoAmjCnxVwcWuHZPZjIAY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kCcf2eSaAGS2e8q3PgLi3kFoAmjCnxVwcWuHZPZjIAY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $now }}",
+            "Decision": "={{ $('Wait').item.json.query.decision }}",
+            "Sintoma": "={{ $('Code in JavaScript').item.json.triage.sintoma_principal }}",
+            "Paciente": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+            "Medico_Responsable": "={{ $('Send a text message').item.json.result.chat.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Paciente",
+              "displayName": "Paciente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sintoma",
+              "displayName": "Sintoma",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Decision",
+              "displayName": "Decision",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Medico_Responsable",
+              "displayName": "Medico_Responsable",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1344,
+        -400
+      ],
+      "id": "b4652cd6-ceca-48d6-9042-4fd699cb510d",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "limhMYikjrsVWVhs",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  // 1. Capturamos la respuesta de la IA (cambia 'output' por 'text' si tu nodo usa ese nombre)\n  let respuestaIA = item.json.output || item.json.text || \"\";\n\n  // 2. LIMPIEZA: Eliminamos las comillas invertidas de markdown que la IA suele agregar\n  respuestaIA = respuestaIA.replace(/```json/gi, '').replace(/```/gi, '').trim();\n\n  // 3. Extracción segura: Intentamos encontrar el primer '{' y el último '}' por si la IA agregó texto extra antes o después\n  const inicioJson = respuestaIA.indexOf('{');\n  const finJson = respuestaIA.lastIndexOf('}');\n\n  if (inicioJson !== -1 && finJson !== -1) {\n    respuestaIA = respuestaIA.substring(inicioJson, finJson + 1);\n  }\n\n  try {\n    // 4. La magia: Convertimos el texto limpio en un objeto JSON real\n    let datosParseados = JSON.parse(respuestaIA);\n\n    // 5. Guardamos el resultado en una nueva variable limpia llamada \"triage\"\n    item.json.triage = datosParseados;\n\n  } catch (error) {\n    // FALLBACK DE SEGURIDAD: Si la IA alucina y el JSON es ilegible, forzamos ruta segura\n    item.json.triage = {\n      \"sintoma_principal\": \"Error de procesamiento de IA. Requiere lectura manual.\",\n      \"nivel_gravedad\": \"ALTA\", // Ante la duda, siempre derivamos al médico\n      \"requiere_medico\": true\n    };\n    item.json.error_tecnico = error.message;\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        160
+      ],
+      "id": "ae326695-92a8-4886-a262-6464737b6a40",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.triage.nivel_gravedad }}",
+                    "rightValue": "ALTA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "86c3127b-44f4-49fa-8aa5-ae4c1aa8540d"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4ada1b56-98ae-43c2-a18d-2efe286f0f23",
+                    "leftValue": "={{ $json.triage.nivel_gravedad }}",
+                    "rightValue": "BAJA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        160
+      ],
+      "id": "5b0b7086-8789-4d70-94aa-34673e718a85",
+      "name": "Switch1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message3": {
+      "main": [
+        []
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bdeffeca-b0ad-4775-a176-2881567eb240",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d41bb379bd923a3afa5401912007c3f5af4167159cc0e28ce94c7fc29b54229a"
+  },
+  "id": "VX2YufzLMnx1nkdM",
+  "tags": []
+}

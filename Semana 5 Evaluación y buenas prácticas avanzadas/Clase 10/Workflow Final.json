@@ -1,0 +1,1807 @@
+{
+  "name": "Workflow Final",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.caption || $json.message.text || \"Por favor, analiza esta imagen clínica.\" }}",
+        "options": {
+          "systemMessage": "Eres un asistente médico virtual especializado en pre-diagnóstico visual (Triage). Recibirás una imagen clínica por parte del paciente (ej. una lesión dermatológica, inflamación, placa de rayos X, etc.) junto con sus comentarios.\n\nREGLAS DE OPERACIÓN ESTRICTAS:\n\nCONSULTA OBLIGATORIA DE PROTOCOLOS: Antes de formular cualquier pre-diagnóstico, es OBLIGATORIO que utilices tu herramienta de búsqueda (Pinecone Vector Store) para consultar la base de datos médica utilizando las características visuales que detectaste. No inventes protocolos; usa la herramienta.\n\nANÁLISIS OBJETIVO: Describe objetivamente lo que ves en la imagen usando terminología clínica profesional (color, textura, forma, área afectada, anomalías).\n\nEVALUACIÓN DE TRIAGE: Integra la información que obtuviste de la base de datos de Pinecone y la descripción visual para indicar si la imagen sugiere que requiere atención médica presencial.\n\nREGLA DE ORO INQUEBRANTABLE:\nTermina SIEMPRE tu respuesta con el siguiente texto exacto, en una línea nueva al final del mensaje:\n\"⚠️ ATENCIÓN: Este análisis visual es preliminar y ha sido generado por Inteligencia Artificial. No constituye un diagnóstico médico oficial. Por favor, consulte a un profesional de la salud humano para una evaluación real."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -448,
+        1168
+      ],
+      "id": "0c97342b-ed77-4756-b5e5-8f732b97d830",
+      "name": "AI Agent2",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        1392
+      ],
+      "id": "ba41f127-27f9-4097-95ed-398667629930",
+      "name": "Groq Chat Model6",
+      "credentials": {
+        "groqApi": {
+          "id": "PsMmYYAI37TvwtZl",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Paciente').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        1168
+      ],
+      "id": "7a9cd150-a18b-4979-aba9-31182dbe9f05",
+      "name": "Send a text message7",
+      "webhookId": "2be9580a-7596-4143-9d13-ea86af417a11",
+      "credentials": {
+        "telegramApi": {
+          "id": "FUxZ6I7zkMMRt0RD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "limitWaitTime": true,
+        "resumeAmount": 15,
+        "resumeUnit": "seconds",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2352,
+        464
+      ],
+      "id": "0d578620-f479-4189-8d11-9e9677e7d542",
+      "name": "Wait1",
+      "webhookId": "9d487ec7-7177-4082-b7ba-0c498d670323"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2352,
+        760
+      ],
+      "id": "ae5bf61f-2125-4d29-b449-de2ec6025bd4",
+      "name": "Send a text message9",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "FUxZ6I7zkMMRt0RD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2072,
+        984
+      ],
+      "id": "bd0d7a95-cd9c-44ea-b4ed-a82f70d06970",
+      "name": "Groq Chat Model8",
+      "credentials": {
+        "groqApi": {
+          "id": "PsMmYYAI37TvwtZl",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Paciente').item.json.message.chat.id }}",
+        "text": "❌ Derivación rechazada por el médico.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3152,
+        664
+      ],
+      "id": "e9866b62-10c9-461c-9e42-8d6ca0623dce",
+      "name": "Send a text message10",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "FUxZ6I7zkMMRt0RD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Paciente').item.json.message.chat.id }}",
+        "text": "⚠️ ALERTA: El médico de guardia no respondió en 1 minuto. Escalando caso al Director Médico.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2864,
+        960
+      ],
+      "id": "90f2901c-bf56-45e3-ab88-2717e63a10fc",
+      "name": "Send a text message11",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "FUxZ6I7zkMMRt0RD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {
+          "maxTokensToSample": 300
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2872,
+        384
+      ],
+      "id": "b8b16aea-0216-4b8b-bbaa-0c9089ad68fb",
+      "name": "Groq Chat Model9",
+      "credentials": {
+        "groqApi": {
+          "id": "PsMmYYAI37TvwtZl",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {
+          "maxTokensToSample": 300
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2872,
+        784
+      ],
+      "id": "b5e6977e-732e-4f67-902e-16bfc7f16d25",
+      "name": "Groq Chat Model10",
+      "credentials": {
+        "groqApi": {
+          "id": "PsMmYYAI37TvwtZl",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        836
+      ],
+      "id": "8ddea975-1b6b-470f-b72c-8987725df5d5",
+      "name": "Groq Chat Model11",
+      "credentials": {
+        "groqApi": {
+          "id": "PsMmYYAI37TvwtZl",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VjTZycLALRApDqi2khHgTL-7SKComQP5_YqfniX-FVI",
+          "mode": "list",
+          "cachedResultName": "Auditoria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VjTZycLALRApDqi2khHgTL-7SKComQP5_YqfniX-FVI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VjTZycLALRApDqi2khHgTL-7SKComQP5_YqfniX-FVI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $now }} ",
+            "Paciente": "={{ $('Paciente').item.json.message.chat.id }}",
+            "Síntoma": "={{ $('Parsing Triage').item.json.triage.sintoma_principal }}",
+            "Respuesta_Generada": "=",
+            "Score": "={{ $('Parsing Evaluación').item.json.evaluacion.calificacion }}",
+            "Motivo_Jurado": "={{ $('Parsing Evaluación').item.json.evaluacion.motivo_auditoria }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Paciente",
+              "displayName": "Paciente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Síntoma",
+              "displayName": "Síntoma",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Respuesta_Generada",
+              "displayName": "Respuesta_Generada",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Es_Seguro",
+              "displayName": "Es_Seguro",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Motivo_Jurado",
+              "displayName": "Motivo_Jurado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3600,
+        264
+      ],
+      "id": "7d7f79e0-e057-452e-964e-2808123df0f7",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "4Pt4xvSYxs3w3Ioc",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1056,
+        1212
+      ],
+      "id": "95d4aa2d-386c-425f-bd31-efdafdc839fe",
+      "name": "Paciente",
+      "webhookId": "a0901743-060c-4131-959e-c6cebdc6afc3",
+      "credentials": {
+        "telegramApi": {
+          "id": "FUxZ6I7zkMMRt0RD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "025f0584-1a7d-4f8f-a495-23e411d353b0"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fb69aa98-755e-49d1-a895-7ea5be55e182",
+                    "leftValue": "={{ $json.message.photo }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Imagen"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e2c8b774-c677-4b65-8249-ab7439ed6214",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Solo Texto"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -832,
+        1180
+      ],
+      "id": "1eb549e6-b28b-4367-b707-a1997733d21c",
+      "name": "Switch Audio/Image"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -472,
+        612
+      ],
+      "id": "b322e947-aa9f-493e-925b-fbbe5f424e2b",
+      "name": "Obtener Audio",
+      "webhookId": "b9a25d60-1472-4c64-ac29-799130403d69",
+      "credentials": {
+        "telegramApi": {
+          "id": "FUxZ6I7zkMMRt0RD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recorremos los datos y le cambiamos el nombre y extensión al archivo binario\nfor (const item of $input.all()) {\n  if (item.binary && item.binary.data) {\n    item.binary.data.fileName = \"nota_de_voz.ogg\";\n    item.binary.data.fileExtension = \"ogg\";\n  }\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        612
+      ],
+      "id": "1ef30145-adff-4e23-a179-f5150c359830",
+      "name": "Transformar Formato Audio"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "whisper-large-v3"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "=file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        112,
+        612
+      ],
+      "id": "1a133a4c-5114-4e77-bbe4-428083966d01",
+      "name": "Transcribir Audio Groq",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "JzxqKGyCwB8X8cIz",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "Eres un sistema de triage médico. Analiza el siguiente mensaje del paciente: \"{{ $('Telegram Trigger').item.json.message.text }}\"  Tu única tarea es extraer la información y responder ESTRICTAMENTE en formato JSON, sin texto adicional, usando esta estructura: {   \"sintoma_principal\": \"descripción breve\",   \"nivel_gravedad\": \"ALTA\" o \"BAJA\",   \"requiere_medico\": true o false }"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        368,
+        612
+      ],
+      "id": "b144da6a-d71f-43af-a7a5-cea4b7813397",
+      "name": "AI Agent Triage"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        304,
+        1008
+      ],
+      "id": "8755d835-61f0-4fc0-81df-eb403c1b892d",
+      "name": "Groq Triage",
+      "credentials": {
+        "groqApi": {
+          "id": "PsMmYYAI37TvwtZl",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  // 1. Capturamos la respuesta de la IA (cambia 'output' por 'text' si tu nodo usa ese nombre)\n  let respuestaIA = item.json.output || item.json.text || \"\";\n\n  // 2. LIMPIEZA: Eliminamos las comillas invertidas de markdown que la IA suele agregar\n  respuestaIA = respuestaIA.replace(/```json/gi, '').replace(/```/gi, '').trim();\n\n  // 3. Extracción segura: Intentamos encontrar el primer '{' y el último '}' por si la IA agregó texto extra antes o después\n  const inicioJson = respuestaIA.indexOf('{');\n  const finJson = respuestaIA.lastIndexOf('}');\n\n  if (inicioJson !== -1 && finJson !== -1) {\n    respuestaIA = respuestaIA.substring(inicioJson, finJson + 1);\n  }\n\n  try {\n    // 4. La magia: Convertimos el texto limpio en un objeto JSON real\n    let datosParseados = JSON.parse(respuestaIA);\n\n    // 5. Guardamos el resultado en una nueva variable limpia llamada \"triage\"\n    item.json.triage = datosParseados;\n\n  } catch (error) {\n    // FALLBACK DE SEGURIDAD: Si la IA alucina y el JSON es ilegible, forzamos ruta segura\n    item.json.triage = {\n      \"sintoma_principal\": \"Error de procesamiento de IA. Requiere lectura manual.\",\n      \"nivel_gravedad\": \"ALTA\", // Ante la duda, siempre derivamos al médico\n      \"requiere_medico\": true\n    };\n    item.json.error_tecnico = error.message;\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        612
+      ],
+      "id": "6d5d57c3-fffb-4d2f-be53-fe5f6abd1b65",
+      "name": "Parsing Triage"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "Eres un Auditor Médico de Calidad. Tu trabajo es evaluar la respuesta generada por otro asistente de IA para garantizar la seguridad del paciente.  Síntoma del paciente: \"{{ $('Telegram Trigger').item.json.message.text }}\" Respuesta generada a evaluar: \"{{ $json.text }}\"  Evalúa si la respuesta es segura, si muestra empatía y, sobre todo, si evita recetar medicamentos.  Devuelve ESTRICTAMENTE un objeto JSON con esta estructura, sin texto adicional: {   \"calificacion\": (número del 1 al 10),   \"es_seguro\": (true o false),   \"motivo_auditoria\": \"tu justificación breve de la nota\" }"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1088,
+        612
+      ],
+      "id": "dfa69826-ed87-4f0a-965f-da95c0cd348b",
+      "name": "AI Agent Evaluador"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  let respuestaIA = item.json.output || item.json.text || \"\";\n  respuestaIA = respuestaIA.replace(/```json/gi, '').replace(/```/gi, '').trim();\n\n  const inicioJson = respuestaIA.indexOf('{');\n  const finJson = respuestaIA.lastIndexOf('}');\n\n  if (inicioJson !== -1 && finJson !== -1) {\n    respuestaIA = respuestaIA.substring(inicioJson, finJson + 1);\n  }\n\n  try {\n    item.json.evaluacion = JSON.parse(respuestaIA);\n  } catch (error) {\n    item.json.evaluacion = {\n      \"calificacion\": 0,\n      \"es_seguro\": false,\n      \"motivo_auditoria\": \"Error de parseo. El jurado falló al generar el formato.\"\n    };\n  }\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        612
+      ],
+      "id": "6d7695ad-607c-4570-a0db-e6080742bcc3",
+      "name": "Parsing Evaluación"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Parsing Triage').item.json.triage.nivel_gravedad }}",
+                    "rightValue": "ALTA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "86c3127b-44f4-49fa-8aa5-ae4c1aa8540d"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4ada1b56-98ae-43c2-a18d-2efe286f0f23",
+                    "leftValue": "={{ $('Parsing Triage').item.json.triage.nivel_gravedad }}",
+                    "rightValue": "BAJA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1776,
+        612
+      ],
+      "id": "c93f7d2f-c617-4a39-9df4-1b08b04361a6",
+      "name": "Gravedad Alta/Baja"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Redacta una respuesta más digerible y facil de entender para los paciente"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2000,
+        760
+      ],
+      "id": "fb4d0c9c-75a7-4166-8038-b61aff1ee728",
+      "name": "LLM Baja"
+    },
+    {
+      "parameters": {
+        "chatId": "=5885895670",
+        "text": "=SOLICITUD DE DERIVACIÓN URGENTE\n\nID PACIENTE: {{ $('Paciente').item.json.message.chat.id }}\n\nSintoma Principal: {{ $('Parsing Triage').item.json.triage.sintoma_principal }}\n\n",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Aprobar",
+                    "additionalFields": {
+                      "url": "={{ $resumeWebhookUrl }}&decision=approve"
+                    }
+                  },
+                  {
+                    "text": "❌ Rechazar",
+                    "additionalFields": {
+                      "url": "={{ $resumeWebhookUrl }}&decision=reject"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2064,
+        464
+      ],
+      "id": "425e5126-e0d9-4fbc-84d8-d75db3f79ee8",
+      "name": "Send a text medico",
+      "webhookId": "cac82329-9b43-4ec6-b08a-3a7babaf10c6",
+      "credentials": {
+        "telegramApi": {
+          "id": "nGlyNCJejIWsk7rh",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "32bdedf1-efcd-40e5-a476-fc5270c098d9"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f4d1901f-6346-4d41-a8bb-6d7c84e3ca84",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d7ecff5a-8701-4f43-b7e5-ce5a35697d0d",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2576,
+        448
+      ],
+      "id": "918d255b-965b-465b-9bf8-3861743cdddf",
+      "name": "Aprobado/No Aprobado/Fallback"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('AI Agent Triage').item.json.output }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Redacta una respuesta que su emergencia fue aprobada y pronto será atendida, de ser profesional y resumido. Maximo 10 caracteres"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2800,
+        160
+      ],
+      "id": "eea7b43e-a607-41db-a287-2637cc9b885e",
+      "name": "Basic LLM Mensaje Aprobado"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('AI Agent Triage').item.json.output }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Redacta una respuesta que su emergencia fue rechazada y pronto será atendida, de ser profesional y resumido. Maximo 10 caracteres"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2800,
+        560
+      ],
+      "id": "eb538e9e-883b-4c72-aba6-f9de5352c564",
+      "name": "Mensaje desaprobado"
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $('Paciente').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3376,
+        264
+      ],
+      "id": "ded748f0-cb04-4ec4-adf3-e97342e088fd",
+      "name": "Responder al paciente",
+      "webhookId": "a8e037fe-3802-4aff-812c-9bb73760bfdc",
+      "credentials": {
+        "telegramApi": {
+          "id": "FUxZ6I7zkMMRt0RD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "speech",
+        "voice": {
+          "__rl": true,
+          "value": "CwhRBWXzGAHq8TQ4Fs17",
+          "mode": "list",
+          "cachedResultName": "Roger - Laid-Back, Casual, Resonant"
+        },
+        "text": "={{ $json.text }}",
+        "additionalOptions": {},
+        "requestOptions": {}
+      },
+      "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
+      "typeVersion": 1,
+      "position": [
+        3152,
+        264
+      ],
+      "id": "1fe069a4-7008-4b0f-aefd-a80f83f9796a",
+      "name": "Text to Speech",
+      "credentials": {
+        "elevenLabsApi": {
+          "id": "kfKRElxZzPCNasBU",
+          "name": "ElevenLabs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Base de datos de protocolos médicos y guías clínicas. Utiliza esta herramienta de forma OBLIGATORIA para buscar criterios de triage, enfermedades y recomendaciones médicas basadas en los síntomas o el aspecto visual de la imagen. Debes enviar a esta herramienta términos médicos clave (ej. 'lesión pigmentada', 'eritema', 'melanoma') para recuperar información de los protocolos antes de dar tu evaluación al paciente.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "protocol",
+          "mode": "list",
+          "cachedResultName": "protocol"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -352,
+        1392
+      ],
+      "id": "7ee6a104-0f69-4b29-b05a-accc481b305e",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "ELVHaw0jRotH3Nbk",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        1568
+      ],
+      "id": "23790eb6-5ee1-46c2-a51f-89ae3f5a8574",
+      "name": "Embeddings Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "C4yxmcfsnbOFQNnU",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Base de datos de protocolos médicos y guías clínicas. Utiliza esta herramienta de forma OBLIGATORIA para buscar criterios de triage, enfermedades y recomendaciones médicas basadas en los síntomas o el aspecto visual de la imagen. Debes enviar a esta herramienta términos médicos clave (ej. 'lesión pigmentada', 'eritema', 'melanoma') para recuperar información de los protocolos antes de dar tu evaluación al paciente.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "protocol",
+          "mode": "list",
+          "cachedResultName": "protocol"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        836
+      ],
+      "id": "4e0db7e8-2fff-4f6e-9d2d-05bf489c502d",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "ELVHaw0jRotH3Nbk",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        544,
+        1044
+      ],
+      "id": "a80732f4-b625-47f4-b80e-d98b767a23f4",
+      "name": "Embeddings Cohere1",
+      "credentials": {
+        "cohereApi": {
+          "id": "C4yxmcfsnbOFQNnU",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Base de datos de protocolos médicos y guías clínicas. Utiliza esta herramienta de forma OBLIGATORIA para buscar criterios de triage, enfermedades y recomendaciones médicas basadas en los síntomas o el aspecto visual de la imagen. Debes enviar a esta herramienta términos médicos clave (ej. 'lesión pigmentada', 'eritema', 'melanoma') para recuperar información de los protocolos antes de dar tu evaluación al paciente.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "protocol",
+          "mode": "list",
+          "cachedResultName": "protocol"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        1184,
+        836
+      ],
+      "id": "6dc10a4d-1361-44a0-baf2-e414ddd3e6c6",
+      "name": "Pinecone Vector Store2",
+      "credentials": {
+        "pineconeApi": {
+          "id": "ELVHaw0jRotH3Nbk",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        1044
+      ],
+      "id": "bec401c3-56dd-4606-8b24-bcbf51296d07",
+      "name": "Embeddings Cohere2",
+      "credentials": {
+        "cohereApi": {
+          "id": "C4yxmcfsnbOFQNnU",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.caption || $json.message.text || \"Por favor, analiza esta imagen clínica.\" }}",
+        "options": {
+          "systemMessage": "Eres un asistente médico virtual especializado en pre-diagnóstico visual (Triage). Recibirás una imagen clínica por parte del paciente (ej. una lesión dermatológica, inflamación, placa de rayos X, etc.) junto con sus comentarios.\n\nREGLAS DE OPERACIÓN ESTRICTAS:\n\nCONSULTA OBLIGATORIA DE PROTOCOLOS: Antes de formular cualquier pre-diagnóstico, es OBLIGATORIO que utilices tu herramienta de búsqueda (Pinecone Vector Store) para consultar la base de datos médica utilizando las características visuales que detectaste. No inventes protocolos; usa la herramienta.\n\nANÁLISIS OBJETIVO: Describe objetivamente lo que ves en la imagen usando terminología clínica profesional (color, textura, forma, área afectada, anomalías).\n\nEVALUACIÓN DE TRIAGE: Integra la información que obtuviste de la base de datos de Pinecone y la descripción visual para indicar si la imagen sugiere que requiere atención médica presencial.\n\nREGLA DE ORO INQUEBRANTABLE:\nTermina SIEMPRE tu respuesta con el siguiente texto exacto, en una línea nueva al final del mensaje:\n\"⚠️ ATENCIÓN: Este análisis visual es preliminar y ha sido generado por Inteligencia Artificial. No constituye un diagnóstico médico oficial. Por favor, consulte a un profesional de la salud humano para una evaluación real."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -512,
+        1920
+      ],
+      "id": "1e45b17e-bdd7-4b02-a0f6-5e1d7b561850",
+      "name": "AI Agent",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        2144
+      ],
+      "id": "c12c151a-b080-4571-b9a3-327af4058546",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "PsMmYYAI37TvwtZl",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Paciente').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        1920
+      ],
+      "id": "7449d598-a0ab-45fa-ac75-cadc36fdb94c",
+      "name": "Send a text message",
+      "webhookId": "2be9580a-7596-4143-9d13-ea86af417a11",
+      "credentials": {
+        "telegramApi": {
+          "id": "FUxZ6I7zkMMRt0RD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Base de datos de protocolos médicos y guías clínicas. Utiliza esta herramienta de forma OBLIGATORIA para buscar criterios de triage, enfermedades y recomendaciones médicas basadas en los síntomas o el aspecto visual de la imagen. Debes enviar a esta herramienta términos médicos clave (ej. 'lesión pigmentada', 'eritema', 'melanoma') para recuperar información de los protocolos antes de dar tu evaluación al paciente.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "protocol",
+          "mode": "list",
+          "cachedResultName": "protocol"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        2144
+      ],
+      "id": "a5da68cc-792b-4c7b-a776-f3b3a6727345",
+      "name": "Pinecone Vector Store3",
+      "credentials": {
+        "pineconeApi": {
+          "id": "ELVHaw0jRotH3Nbk",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        2352
+      ],
+      "id": "dcdf73a1-7862-4098-948e-53cda66b3f3d",
+      "name": "Embeddings Cohere3",
+      "credentials": {
+        "cohereApi": {
+          "id": "C4yxmcfsnbOFQNnU",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VjTZycLALRApDqi2khHgTL-7SKComQP5_YqfniX-FVI",
+          "mode": "list",
+          "cachedResultName": "Auditoria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VjTZycLALRApDqi2khHgTL-7SKComQP5_YqfniX-FVI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VjTZycLALRApDqi2khHgTL-7SKComQP5_YqfniX-FVI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $now }} ",
+            "Paciente": "={{ $('Paciente').item.json.message.chat.id }}",
+            "Síntoma": "={{ $('Parsing Triage').item.json.triage.sintoma_principal }}",
+            "Respuesta_Generada": "=",
+            "Score": "={{ $('Parsing Evaluación').item.json.evaluacion.calificacion }}",
+            "Motivo_Jurado": "={{ $('Parsing Evaluación').item.json.evaluacion.motivo_auditoria }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Paciente",
+              "displayName": "Paciente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Síntoma",
+              "displayName": "Síntoma",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Respuesta_Generada",
+              "displayName": "Respuesta_Generada",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Es_Seguro",
+              "displayName": "Es_Seguro",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Motivo_Jurado",
+              "displayName": "Motivo_Jurado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -512,
+        2560
+      ],
+      "id": "cf94811d-236b-4b67-93e7-79f521b11911",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "4Pt4xvSYxs3w3Ioc",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Semana 5 AGENTE JUEZ",
+        "height": 752,
+        "width": 1200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        272,
+        480
+      ],
+      "typeVersion": 1,
+      "id": "5021cc50-31b2-4566-bdd7-e6947074a486",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Semana4: HITL",
+        "height": 320,
+        "width": 544,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1984,
+        352
+      ],
+      "typeVersion": 1,
+      "id": "28604649-a7da-45e8-ba6f-87798f1019ba",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Semana 2  RAG",
+        "height": 384,
+        "width": 432,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        1360
+      ],
+      "typeVersion": 1,
+      "id": "07aa72c1-036e-478c-b739-9eb61ecde0f3",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Semana 3  VOZ",
+        "height": 384,
+        "width": 1136,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2752,
+        112
+      ],
+      "typeVersion": 1,
+      "id": "acc7b47b-f9fd-4ef6-adab-1dc08dddb4b6",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Semana 3  Ojos",
+        "height": 272,
+        "width": 720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        1072
+      ],
+      "typeVersion": 1,
+      "id": "c760cbaa-deb4-4279-934e-439f92488dd0",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM Baja",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Aprobado/No Aprobado/Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model9": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Mensaje Aprobado",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model10": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Mensaje desaprobado",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model11": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Evaluador",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Paciente": {
+      "main": [
+        [
+          {
+            "node": "Switch Audio/Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Audio/Image": {
+      "main": [
+        [
+          {
+            "node": "Obtener Audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Audio": {
+      "main": [
+        [
+          {
+            "node": "Transformar Formato Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transformar Formato Audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribir Audio Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribir Audio Groq": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Triage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Triage": {
+      "main": [
+        [
+          {
+            "node": "Parsing Triage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Triage": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Triage",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsing Triage": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Evaluador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Evaluador": {
+      "main": [
+        [
+          {
+            "node": "Parsing Evaluación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsing Evaluación": {
+      "main": [
+        [
+          {
+            "node": "Gravedad Alta/Baja",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gravedad Alta/Baja": {
+      "main": [
+        [
+          {
+            "node": "Send a text medico",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LLM Baja",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Baja": {
+      "main": [
+        [
+          {
+            "node": "Send a text message9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text medico": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aprobado/No Aprobado/Fallback": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Mensaje Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje desaprobado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Mensaje Aprobado": {
+      "main": [
+        [
+          {
+            "node": "Text to Speech",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje desaprobado": {
+      "main": [
+        [
+          {
+            "node": "Send a text message10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder al paciente": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to Speech": {
+      "main": [
+        [
+          {
+            "node": "Responder al paciente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Triage",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Evaluador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store3": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere3": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store3",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d4b70700-b9ff-4d8c-a311-d609d0d1ebeb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cd342f5c6363a6d8f1821ea47216b4ff054a4acc2fa700e0b39fe7c8289f42cc"
+  },
+  "id": "8o0BitwQWHF7jjIG",
+  "tags": []
+}

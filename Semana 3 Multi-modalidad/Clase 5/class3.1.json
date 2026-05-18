@@ -1,0 +1,104 @@
+{
+  "name": "class3.1",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6ee873f0-2ca1-4781-b433-b71bd105418a",
+      "name": "Telegram Trigger4",
+      "webhookId": "a0901743-060c-4131-959e-c6cebdc6afc3",
+      "credentials": {
+        "telegramApi": {
+          "id": "FUxZ6I7zkMMRt0RD",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.caption || $json.message.text || \"Por favor, analiza esta imagen clínica.\" }}",
+        "options": {
+          "systemMessage": "Eres un asistente médico virtual especializado en pre-diagnóstico visual (Triage). Recibirás una imagen clínica por parte del paciente (ej. una lesión dermatológica, inflamación, placa de rayos X, etc.).\n\nREGLAS DE OPERACIÓN:\n\nDescribe objetivamente lo que ves en la imagen usando terminología clínica profesional (color, textura, forma, área afectada, anomalías).\n\nIndica si, basado en protocolos generales, la imagen sugiere que requiere atención médica presencial.\n\nREGLA DE ORO INQUEBRANTABLE: Termina SIEMPRE tu respuesta con el siguiente texto exacto:\n\n\"⚠️ ATENCIÓN: Este análisis visual es preliminar y ha sido generado por Inteligencia Artificial. No constituye un diagnóstico médico oficial. Por favor, consulte a un profesional de la salud humano para una evaluación real."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        272,
+        0
+      ],
+      "id": "64778c5b-e6b0-4385-a64a-18239fcded03",
+      "name": "AI Agent1",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        176,
+        288
+      ],
+      "id": "794065d3-f05c-48fd-b627-16c7a0e27a05",
+      "name": "Groq Chat Model5",
+      "credentials": {
+        "groqApi": {
+          "id": "PsMmYYAI37TvwtZl",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger4": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "072e9936-7cc6-448e-a60a-fc80cf662d95",
+  "meta": {
+    "instanceId": "cd342f5c6363a6d8f1821ea47216b4ff054a4acc2fa700e0b39fe7c8289f42cc"
+  },
+  "id": "skN3Bqk3gLtm8vGG",
+  "tags": []
+}

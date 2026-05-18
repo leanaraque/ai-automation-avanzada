@@ -1,0 +1,515 @@
+{
+  "name": "Clase4.1 Basic 2.0",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        64
+      ],
+      "id": "51cccb7b-f43c-41a2-a9b6-925d05c674dc",
+      "name": "Telegram Trigger",
+      "webhookId": "e1ae3606-f1ab-497f-b9ed-44247dabf5d5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=5885895670",
+        "text": "={{ $json.text }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Aprobar",
+                    "additionalFields": {
+                      "url": "={{ $resumeWebhookUrl }}&decision=approve"
+                    }
+                  },
+                  {
+                    "text": "❌ Rechazar",
+                    "additionalFields": {
+                      "url": "={{ $resumeWebhookUrl }}&decision=reject"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        16
+      ],
+      "id": "d57a3e69-6c3f-4d1f-90c0-e04cecc96a7f",
+      "name": "Send a text message",
+      "webhookId": "cac82329-9b43-4ec6-b08a-3a7babaf10c6",
+      "credentials": {
+        "telegramApi": {
+          "id": "e4yASAEOdcwHnuIF",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "limitWaitTime": true,
+        "resumeAmount": 15,
+        "resumeUnit": "seconds",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        16
+      ],
+      "id": "ec1d357f-5962-498d-973d-885b1fd3f860",
+      "name": "Wait",
+      "webhookId": "9d487ec7-7177-4082-b7ba-0c498d670323"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "32bdedf1-efcd-40e5-a476-fc5270c098d9"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f4d1901f-6346-4d41-a8bb-6d7c84e3ca84",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d7ecff5a-8701-4f43-b7e5-ce5a35697d0d",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        656,
+        0
+      ],
+      "id": "152ff901-3dc2-43d1-83b2-9675caea3024",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "✅ Derivación aprobada. Enviando ambulancia.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        -192
+      ],
+      "id": "a270f652-b548-4a6c-9f0b-e3e0df3b91f6",
+      "name": "Send a text message1",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "❌ Derivación rechazada por el médico.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        16
+      ],
+      "id": "1707e0de-197a-4516-b06f-84f9d9985cd1",
+      "name": "Send a text message2",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "⚠️ ALERTA: El médico de guardia no respondió en 1 minuto. Escalando caso al Director Médico.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        224
+      ],
+      "id": "53f34e4c-7076-42b3-b87f-70786f1e4fe4",
+      "name": "Send a text message3",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Eres un médico de triage de emergencias. El paciente te dirá sus síntomas. Si los síntomas son potencialmente graves (dolor de pecho, asfixia, sangrado severo), responde empezando EXACTAMENTE con la palabra 'URGENCIA:' seguida de un resumen clínico breve para el médico de guardia, pidiendo autorización para derivar. Si los síntomas son leves (tos leve, raspón, dolor de cabeza común), responde empezando EXACTAMENTE con la palabra 'LEVE:' seguida de una recomendación de descanso."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -496,
+        64
+      ],
+      "id": "9cf45430-d280-41a5-9c97-c8b6111d9488",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        320
+      ],
+      "id": "afcf0cb3-c3c5-4af5-a282-c7bea2652486",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "CuE7PN4eQI2At1ee",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c144c0eb-e643-4fba-a673-4ba319e45edb",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "URGENCIA:",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -176,
+        64
+      ],
+      "id": "ed79d6ca-de43-4ff5-9652-0c3dc06fe668",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        272
+      ],
+      "id": "94dc277c-349a-4a58-b128-5c7f3ad06264",
+      "name": "Send a text message4",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Redacta una respuesta más digerible y facil de entender para los paciente"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        48,
+        208
+      ],
+      "id": "27f4a860-ed7e-4184-9359-e5edbe85d7e3",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        0,
+        432
+      ],
+      "id": "04c791fe-dffe-4643-bc6b-8285d7c06b6d",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "CuE7PN4eQI2At1ee",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d2bf6c3e-5233-4c13-ad1b-1b755948c9a3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d41bb379bd923a3afa5401912007c3f5af4167159cc0e28ce94c7fc29b54229a"
+  },
+  "id": "VX2YufzLMnx1nkdM",
+  "tags": []
+}

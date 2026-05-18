@@ -1,0 +1,282 @@
+{
+  "name": "Class. 2.1 Mejorada",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        -160
+      ],
+      "id": "cf27fb62-c1ec-4dd4-943a-c4c2afd3bccf",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "protocol",
+          "mode": "list",
+          "cachedResultName": "protocol"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        -160
+      ],
+      "id": "e7dd6a0d-3d2e-4209-a158-9964728d7e25",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "76IS03k9HnwxeKbK",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        80
+      ],
+      "id": "a39ce1bc-482b-423a-8aa2-eb108ae14cfb",
+      "name": "Embeddings Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "ELUvZ4Ycv0TcpMsf",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        176,
+        80
+      ],
+      "id": "78ad9f22-f53f-4188-978f-ce11f3968a16",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 150,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        176,
+        288
+      ],
+      "id": "4cd7229e-a640-4ce7-ba27-5c688164e579",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        -160
+      ],
+      "id": "c069cb5a-5eee-4d98-a2d6-190ceb8baf35",
+      "name": "Wait",
+      "webhookId": "bc5cc2d0-f83d-47ae-9754-537426ec5a33"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloud.llamaindex.ai/api/parsing/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -768,
+        -160
+      ],
+      "id": "23c8a85c-1105-49e3-9154-ad9fb62b0681",
+      "name": "USO DE LLAMA CLOUDE",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tCsCr6X0Tlxl13n7",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloud.llamaindex.ai/api/parsing/job/{{ $('USO DE LLAMA CLOUDE').item.json.id }}/result/markdown",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -304,
+        -160
+      ],
+      "id": "d1e87927-0b6a-412f-b2a5-404d3250da74",
+      "name": "RECUPERACION LLAMA CLOUDE",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tCsCr6X0Tlxl13n7",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.who.int/docs/default-source/coronaviruse/covid-19-master-ffx-protocol-v2-sp-web.pdf",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -992,
+        -160
+      ],
+      "id": "ced55427-89c9-4e7d-bf9e-a0fd18f2f8ba",
+      "name": "PDF COVID"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "PDF COVID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "RECUPERACION LLAMA CLOUDE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "USO DE LLAMA CLOUDE": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RECUPERACION LLAMA CLOUDE": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF COVID": {
+      "main": [
+        [
+          {
+            "node": "USO DE LLAMA CLOUDE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ca50b53e-83a4-4a10-b128-dba4a12e03a7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5cbbff2b64abb4985443b2718aca376efdfef2b8700d3382e181d974a50fefdf"
+  },
+  "id": "o3v2VD59wq7rYsrp",
+  "tags": []
+}

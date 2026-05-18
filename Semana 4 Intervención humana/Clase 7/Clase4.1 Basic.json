@@ -1,0 +1,314 @@
+{
+  "name": "Clase4.1 Basic",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -176,
+        16
+      ],
+      "id": "51cccb7b-f43c-41a2-a9b6-925d05c674dc",
+      "name": "Telegram Trigger",
+      "webhookId": "e1ae3606-f1ab-497f-b9ed-44247dabf5d5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=5885895670",
+        "text": "⚠️ ALERTA: El médico de guardia no \nrespondió en 1 minuto. \nEscalando caso al Director Médico.",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Aprobar",
+                    "additionalFields": {
+                      "url": "={{ $resumeWebhookUrl }}&decision=approve"
+                    }
+                  },
+                  {
+                    "text": "❌ Rechazar",
+                    "additionalFields": {
+                      "url": "={{ $resumeWebhookUrl }}&decision=reject"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        16
+      ],
+      "id": "d57a3e69-6c3f-4d1f-90c0-e04cecc96a7f",
+      "name": "Send a text message",
+      "webhookId": "cac82329-9b43-4ec6-b08a-3a7babaf10c6",
+      "credentials": {
+        "telegramApi": {
+          "id": "e4yASAEOdcwHnuIF",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "limitWaitTime": true,
+        "resumeAmount": 15,
+        "resumeUnit": "seconds",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        16
+      ],
+      "id": "ec1d357f-5962-498d-973d-885b1fd3f860",
+      "name": "Wait",
+      "webhookId": "9d487ec7-7177-4082-b7ba-0c498d670323"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "32bdedf1-efcd-40e5-a476-fc5270c098d9"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f4d1901f-6346-4d41-a8bb-6d7c84e3ca84",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d7ecff5a-8701-4f43-b7e5-ce5a35697d0d",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        656,
+        16
+      ],
+      "id": "152ff901-3dc2-43d1-83b2-9675caea3024",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "✅ Derivación aprobada. Enviando ambulancia.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        -128
+      ],
+      "id": "a270f652-b548-4a6c-9f0b-e3e0df3b91f6",
+      "name": "Send a text message1",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "❌ Derivación rechazada por el médico.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        80
+      ],
+      "id": "1707e0de-197a-4516-b06f-84f9d9985cd1",
+      "name": "Send a text message2",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "⚠️ ALERTA: El médico de guardia no respondió en 1 minuto. Escalando caso al Director Médico.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        912,
+        272
+      ],
+      "id": "53f34e4c-7076-42b3-b87f-70786f1e4fe4",
+      "name": "Send a text message3",
+      "webhookId": "c78c39be-0df4-4ba1-a674-d1b80a93aba5",
+      "credentials": {
+        "telegramApi": {
+          "id": "wLZKp1fsp9Ol9VxG",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "78c20eee-dfe3-450d-90e7-cc75505a2582",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d41bb379bd923a3afa5401912007c3f5af4167159cc0e28ce94c7fc29b54229a"
+  },
+  "id": "VX2YufzLMnx1nkdM",
+  "tags": []
+}
